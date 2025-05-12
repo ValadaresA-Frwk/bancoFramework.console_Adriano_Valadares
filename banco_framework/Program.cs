@@ -46,7 +46,8 @@ internal class Program
     {
         Console.WriteLine($"Como posso ajudar {pessoa.Nome}?");
         ShowMenuOptions();
-        OnSelecOption(pessoa);
+        short option = ReadOption();
+        OnSelecOption(pessoa, option);
     }
     private static void ShowMenuOptions()
     {
@@ -58,39 +59,41 @@ internal class Program
         Console.WriteLine("Selecione uma opção:");
     }
 
-    private static void OnSelecOption(Pessoa pessoa)
+    private static short ReadOption()
     {
         try
         {
-            short option = Convert.ToInt16(Console.ReadLine());
-            switch (option)
-            {
-                case 1:
-                    Console.Clear();
-                    Console.WriteLine($"{menuOptions[1]}");
-                    Console.ReadKey();
-                    break;
-
-                case 2:
-                    Console.Clear();
-                    Console.WriteLine($"{menuOptions[2]}");
-                    Console.ReadKey();
-                    break;
-
-                case 3:
-                    break;
-
-                default:
-                    Console.Clear();
-                    BeginOperation(pessoa);
-                    break;
-            }
+            return Convert.ToInt16(Console.ReadLine());
         }
         catch (System.Exception)
         {
+            return 0;
+        }
+    }
 
-            Console.Clear();
-            BeginOperation(pessoa);
+    private static void OnSelecOption(Pessoa pessoa, short option)
+    {
+        switch (option)
+        {
+            case 1:
+                Console.Clear();
+                Console.WriteLine($"{menuOptions[1]}");
+                Console.ReadKey();
+                break;
+
+            case 2:
+                Console.Clear();
+                Console.WriteLine($"{menuOptions[2]}");
+                Console.ReadKey();
+                break;
+
+            case 3:
+                break;
+
+            default:
+                Console.Clear();
+                BeginOperation(pessoa);
+                break;
         }
     }
 }
