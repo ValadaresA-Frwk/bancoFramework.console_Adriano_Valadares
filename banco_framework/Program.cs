@@ -1,5 +1,6 @@
 using Application;
 using Domain.Model;
+using CpfCnpjLibrary;
 
 namespace bancoFramework;
 
@@ -12,6 +13,7 @@ internal class Program
             {3,  "Sair"}
         };
     private static readonly Calculo CalcManager = new Calculo();
+    private static List<string> IdentificationErrors = new List<string>();
 
     private static void Main(string[] args)
     {
@@ -28,7 +30,14 @@ internal class Program
         var cliente = new Cliente();
 
         Console.WriteLine("Seu número de identificação:");
-        cliente.Id = int.Parse(Console.ReadLine());
+        try
+        {
+            cliente.Id = int.Parse(Console.ReadLine());
+        }
+        catch (Exception)
+        {
+            cliente.Id = -1;
+        }
 
         Console.WriteLine("Seu nome:");
         cliente.Nome = Console.ReadLine();
@@ -36,15 +45,29 @@ internal class Program
         Console.WriteLine("Seu CPF:");
         cliente.Cpf = Console.ReadLine();
 
-        Console.WriteLine("Seu Saldo:");
-        cliente.Saldo = float.Parse(Console.ReadLine());
-        Console.Clear();
+        try
+        {
+            Console.WriteLine("Seu Saldo:");
+            cliente.Saldo = float.Parse(Console.ReadLine());
+        }
+        catch (Exception)
+        {
+            cliente.Saldo = -1;
+        }
+
+        bool clientWithValidInfo = ValidateInfo(cliente);
+        if (!clientWithValidInfo)
+        {
+            ShowValidationErrors();
+            cliente = Identificacao();
+        }
 
         return cliente;
     }
 
     private static void BeginOperation(Cliente pessoa)
     {
+        Console.Clear();
         Console.WriteLine($"Seu saldo atual é: {pessoa.Saldo}");
         Console.WriteLine($"Como posso ajudar {pessoa.Nome}?");
         ShowMenuOptions();
@@ -104,8 +127,8 @@ internal class Program
         try
         {
             Console.WriteLine("Digite o valor:");
-            double value = Convert.ToDouble(Console.ReadLine());
-            cliente.Saldo = CalcManager.Soma((float)value, cliente.Saldo);
+            float value = float.Parse(Console.ReadLine());
+            cliente.Saldo = CalcManager.Soma(value, cliente.Saldo);
             Console.Clear();
             BeginOperation(cliente);
         }
@@ -120,8 +143,8 @@ internal class Program
         try
         {
             Console.WriteLine("Digite o valor:");
-            double value = Convert.ToDouble(Console.ReadLine());
-            cliente.Saldo = CalcManager.Subtrair(n2: (float)value, n1: cliente.Saldo);
+            float value = float.Parse(Console.ReadLine());
+            cliente.Saldo = CalcManager.Subtrair(n2: value, n1: cliente.Saldo);
             Console.Clear();
             BeginOperation(cliente);
         }
@@ -129,5 +152,42 @@ internal class Program
         {
             WithdrawAction(cliente);
         }
+    }
+
+    private static bool ValidateInfo(Cliente client)
+    {
+        IdentificationErrors.Clear();
+        if (!Cpf.Validar(client.Cpf))
+        {
+            IdentificationErrors.Add("CPF digitado não é válido");
+        }
+
+        if (client.Id == -1)
+        {
+            IdentificationErrors.Add("Identificador não é válido");
+        }
+
+        if (client.Saldo == -1)
+        {
+            IdentificationErrors.Add("Saldo não é válido");
+        }
+
+        if (client.Nome == "")
+        {
+            IdentificationErrors.Add("Nome informado não é válido");
+        }
+
+        return !(IdentificationErrors.Count > 0);
+    }
+
+    private static void ShowValidationErrors()
+    {
+        Console.WriteLine("\n### Atenção: ###");
+        for (var i = 0; i < IdentificationErrors.Count; i++)
+        {
+            Console.WriteLine(IdentificationErrors[i]);
+        }
+        Console.ReadKey();
+        Console.Clear();
     }
 }
