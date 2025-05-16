@@ -35,6 +35,9 @@ internal class Program
 
         Console.WriteLine("Seu CPF:");
         cliente.Cpf = Console.ReadLine();
+
+        Console.WriteLine("Seu Saldo:");
+        cliente.Saldo = float.Parse(Console.ReadLine());
         Console.Clear();
 
         return cliente;
